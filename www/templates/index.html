@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <title>{{.AppName}}</title>
+
+    <style>
+      body {
+        padding-top: 3.5rem;
+      }
+    </style>
+  </head>
+  <body>
+
+    {{if .ErrorMsg }}
+    <div class="alert alert-danger" role="alert">
+      {{.ErrorMsg}}
+    </div>
+    {{end}}
+
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark ">
+      <a class="navbar-brand" href="#">{{.AppName}}</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="" data-toggle="modal" data-target=".bs-example-modal-sm"><i class="fas fa-sign-out-alt"></i> Log out</a>
+            
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- LOGOUT DIALOG -->
+    <div class="modal bs-example-modal-sm" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+          <div class="modal-header"><h4>Logout <i class="fa fa-lock"></i></h4></div>
+          <div class="modal-body"><i class="fa fa-question-circle"></i> Are you sure you want to log-off?</div>
+          <div class="modal-footer"><a href="/logout?s={{.Token}}" class="btn btn-primary btn-block">Logout</a></div>
+         
+        </div>
+      </div>
+    </div>
+    <!------------------>
+
+    <main role="main">
+
+      <!-- Main jumbotron for a primary marketing message or call to action -->
+      <div class="jumbotron">
+        <div class="container">
+          <h1 class="display-5">Hello, {{.Email}}!</h1>
+          <p></p>
+          <p>To connect to {{.AppName}}, you will need an SFTP client installed on your computer.</p>
+          <p>Please, keep this page open to log into AltoFS using a SFTP client.</p>
+          <p>This page will automatically refresh in <span id="refreshtimeout">{{.RefreshTimeout}}</span> second(s).</p>
+          <br>
+          <p><a class="btn btn-primary btn-lg" href='{{.LaunchURL}}'  rel="noopener noreferrer" target="_blank" role="button">Launch SFTP Client &raquo;</a></p>
+        </div>
+      </div>
+
+      <div class="container">
+        <!-- Example row of columns -->
+        <div class="row">
+          <div class="col-md-6">
+            <h2>FileZilla Client</h2>
+            <p>FileZilla Client is an open source SFTP client for Microsoft Windows, Linux and Mac OS X. </p>
+            <p><a class="btn btn-secondary" href="https://filezilla-project.org/download.php?type=client" rel="noopener noreferrer" target="_blank" role="button">Download &raquo;</a></p>
+          </div>
+          <div class="col-md-6">
+            <h2>WinSCP</h2>
+            <p>WinSCP Client is an open source SFTP client for Microsoft Windows. </p>
+            <p><a class="btn btn-secondary" href="https://winscp.net/eng/download.php" rel="noopener noreferrer" target="_blank" role="button">Download &raquo;</a></p>
+          </div>
+          <!--
+          <div class="col-md-4">
+            <h2>Heading</h2>
+            <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+            <p><a class="btn btn-secondary" href="#" role="button">View details &raquo;</a></p>
+          </div>-->
+        </div>
+
+        <hr>
+
+      </div> <!-- /container -->
+
+    </main>
+
+    <footer class="container">
+      <p>&copy; AltoGroup 2020-2020</p>
+    </footer>
+
+
+
+
+    
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+  
+    <script>
+      var RefreshTimeout = 0 + {{.RefreshTimeout}}
+      var myVar = setInterval(myTimer, 1000);
+       
+      function myTimer() {
+        RefreshTimeout--;
+        var element = document.getElementById("refreshtimeout");
+        element.innerHTML = RefreshTimeout;
+            
+        if (RefreshTimeout == 0) {
+            location.reload();
+        }
+           
+      }
+    </script>
+  </body>
+</html>

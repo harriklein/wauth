@@ -1,0 +1,133 @@
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"text/template"
+
+	"github.com/gorilla/sessions"
+)
+
+const (
+	sessionName = "WAUTH-ALTOFS"
+)
+
+var (
+	// key must be 16, 24 or 32 bytes long (AES-128, AES-192 or AES-256)
+	//key   = []byte("super-secret-key")
+	key   = []byte("wauth-altofs-key@!t00920")
+	store = sessions.NewCookieStore(key)
+)
+
+// Templates
+var navigationBarHTML string
+var homepageTpl *template.Template
+var secondViewTpl *template.Template
+var thirdViewTpl *template.Template
+
+func init() {
+	navigationBarHTML = assets.MustAssetString("templates/navigation_bar.html")
+
+	homepageHTML := assets.MustAssetString("templates/index.html")
+	homepageTpl = template.Must(template.New("homepage_view").Parse(homepageHTML))
+
+	secondViewHTML := assets.MustAssetString("templates/second_view.html")
+	secondViewTpl = template.Must(template.New("second_view").Parse(secondViewHTML))
+
+	thirdViewFuncMap := ThirdViewFormattingFuncMap()
+	thirdViewHTML := assets.MustAssetString("templates/third_view.html")
+	thirdViewTpl = template.Must(template.New("third_view").Funcs(thirdViewFuncMap).Parse(thirdViewHTML))
+}
+
+// loginHandler handles the login page
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	_session, _error := store.Get(r, sessionName)
+	if _error != nil {
+		http.Error(w, _error.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Authentication goes here
+	// ...
+
+	// Set user as authenticated
+	_session.Values["authenticated"] = true
+	_session.Save(r, w)
+}
+
+// logoutHandler handles the logout page
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	_session, _error := store.Get(r, sessionName)
+	if _error != nil {
+		http.Error(w, _error.Error(), http.StatusInternalServerError)
+		return
+	}
+	// Revoke users authentication
+	_session.Values["authenticated"] = false
+	_session.Save(r, w)
+}
+
+// secretHandler handles simple demo
+func secretHandler(w http.ResponseWriter, r *http.Request) {
+	_session, _error := store.Get(r, sessionName)
+	if _error != nil {
+		http.Error(w, _error.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Check if user is authenticated
+	if _auth, _ok := _session.Values["authenticated"].(bool); !_ok || !_auth {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	// Print secret message
+	fmt.Fprintln(w, "The cake is a lie!")
+}
+
+// homeHandler handles the home page
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	_session, _error := store.Get(r, sessionName)
+	if _error != nil {
+		http.Error(w, _error.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Check if user is authenticated
+	if _auth, _ok := _session.Values["authenticated"].(bool); !_ok || !_auth {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	// Print secret message
+	fmt.Fprintln(w, "The cake is a lie!")
+}
+
+// homeHandler handles the home page
+func authGoogleCallbackHandler(w http.ResponseWriter, r *http.Request) {
+	_session, _error := store.Get(r, sessionName)
+	if _error != nil {
+		http.Error(w, _error.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Check if user is authenticated
+	if _auth, _ok := _session.Values["authenticated"].(bool); !_ok || !_auth {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	// Print secret message
+	fmt.Fprintln(w, "Google Auth Callback!")
+}
+
+// main
+func main() {
+	http.HandleFunc("/", homeHandler)
+	http.HandleFunc("/secret", secretHandler)
+	http.HandleFunc("/login", loginHandler)
+	http.HandleFunc("/logout", logoutHandler)
+	http.HandleFunc("/google/auth/callback", authGoogleCallbackHandler)
+
+	http.ListenAndServe(":8080", nil)
+}
